@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Baby, LogOut, Calendar, DollarSign, Star, MapPin, Car, User } from 'lucide-react';
+import { Baby, LogOut, Calendar as CalendarIcon, DollarSign, Star, MapPin, Car, User } from 'lucide-react';
 import { Booking } from '@/lib/types';
+import Calendar from '@/components/Calendar';
 
 export default function BabysitterDashboard() {
   const router = useRouter();
@@ -11,7 +12,8 @@ export default function BabysitterDashboard() {
   const [profile, setProfile] = useState<any>(null);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'profile' | 'bookings'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'bookings' | 'availability'>('profile');
+  const [availableDates, setAvailableDates] = useState<string[]>([]);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -35,11 +37,22 @@ export default function BabysitterDashboard() {
       const data = await response.json();
       const myProfile = data.babysitters.find((b: any) => b.id === userId);
       setProfile(myProfile);
+      setAvailableDates(myProfile?.availability || []);
     } catch (error) {
       console.error('Error fetching profile:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDateSelect = (date: string) => {
+    setAvailableDates([...availableDates, date]);
+    // In production, save to backend
+  };
+
+  const handleDateDeselect = (date: string) => {
+    setAvailableDates(availableDates.filter(d => d !== date));
+    // In production, save to backend
   };
 
   const fetchBookings = async (userId: string) => {
@@ -102,6 +115,17 @@ export default function BabysitterDashboard() {
             }`}
           >
             My Profile
+          </button>
+          <button
+            onClick={() => setActiveTab('availability')}
+            className={`px-6 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2 ${
+              activeTab === 'availability'
+                ? 'bg-pink-500 text-white'
+                : 'bg-white text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            <CalendarIcon className="w-5 h-5" />
+            Availability
           </button>
           <button
             onClick={() => setActiveTab('bookings')}
@@ -201,12 +225,42 @@ export default function BabysitterDashboard() {
           </div>
         )}
 
+        {/* Availability Tab */}
+        {activeTab === 'availability' && (
+          <div>
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">Set Your Availability</h3>
+              <p className="text-gray-600 mb-4">
+                Click on dates to mark when you're available for babysitting. Parents will only see these dates when booking.
+              </p>
+              <div className="mb-4">
+                <p className="text-sm text-gray-600">
+                  You have <span className="font-semibold text-pink-600">{availableDates.length}</span> dates marked as available
+                </p>
+              </div>
+            </div>
+
+            <Calendar
+              selectedDates={availableDates}
+              onDateSelect={handleDateSelect}
+              onDateDeselect={handleDateDeselect}
+              mode="select"
+            />
+
+            <div className="mt-6 bg-pink-50 border border-pink-200 rounded-lg p-4">
+              <p className="text-sm text-gray-700">
+                <span className="font-semibold">💡 Tip:</span> Keep your calendar updated! Parents prefer babysitters who regularly update their availability.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Bookings Tab */}
         {activeTab === 'bookings' && (
           <div className="space-y-4">
             {bookings.length === 0 ? (
               <div className="bg-white rounded-lg shadow-md p-12 text-center">
-                <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <CalendarIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-gray-700 mb-2">No Bookings Yet</h3>
                 <p className="text-gray-600">
                   You'll see booking requests from parents here once they start coming in.

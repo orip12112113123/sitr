@@ -48,10 +48,13 @@ export interface Booking {
   parentId: string;
   babysitterId: string;
   date: string;
+  startTime?: string;
+  endTime?: string;
   hours: number;
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
   totalAmount: number;
   createdAt: string;
+  needsUber?: boolean; // Whether Uber transportation is needed
 }
 
 export interface RegisterFormData {

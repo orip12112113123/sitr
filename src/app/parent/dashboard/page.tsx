@@ -18,8 +18,8 @@ export default function ParentDashboard() {
     location: '',
     maxRate: '',
     minRating: '',
-    transportation: '',
-    maxDistance: '',
+    transportation: 'uber', // Default to Uber - prioritize sitters who need rides
+    maxDistance: '10', // Default to 10 miles
   });
 
   const [bookingForm, setBookingForm] = useState({
@@ -41,6 +41,13 @@ export default function ParentDashboard() {
     setUser(userData);
     fetchBabysitters();
   }, []);
+
+  // Apply default filters when babysitters are loaded
+  useEffect(() => {
+    if (babysitters.length > 0) {
+      applyFilters();
+    }
+  }, [babysitters]);
 
   const fetchBabysitters = async () => {
     try {
