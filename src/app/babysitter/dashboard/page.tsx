@@ -272,7 +272,7 @@ export default function BabysitterDashboard() {
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-2 mb-2">
-                        <Calendar className="w-5 h-5 text-pink-600" />
+                        <CalendarIcon className="w-5 h-5 text-pink-600" />
                         <span className="font-semibold text-lg">
                           {new Date(booking.date).toLocaleDateString()}
                         </span>
