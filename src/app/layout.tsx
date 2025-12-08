@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import FeedbackAndSupport from '@/components/FeedbackAndSupport';
 
 export const metadata: Metadata = {
   title: 'Sitr - Find Your Perfect Babysitter',
@@ -13,7 +14,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {children}
+        <FeedbackAndSupport />
+      </body>
     </html>
   );
 }

@@ -1,11 +1,43 @@
 import { User, ParentProfile, BabysitterProfile, Review, Booking } from '@/lib/types';
 
+// Analytics tracking
+export interface AnalyticsEvent {
+  id: string;
+  type: 'page_view' | 'registration' | 'booking' | 'login' | 'search';
+  timestamp: string;
+  userId?: string;
+  metadata?: any;
+}
+
+export interface Feedback {
+  id: string;
+  userId?: string;
+  rating?: number;
+  comment: string;
+  type: 'rating' | 'problem';
+  timestamp: string;
+  userEmail?: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  userId?: string;
+  userName: string;
+  message: string;
+  timestamp: string;
+  isAdmin: boolean;
+  read: boolean;
+}
+
 // In-memory storage (replace with real database in production)
 export const users: User[] = [];
 export const parents: ParentProfile[] = [];
 export const babysitters: BabysitterProfile[] = [];
 export const reviews: Review[] = [];
 export const bookings: Booking[] = [];
+export const analyticsEvents: AnalyticsEvent[] = [];
+export const feedbacks: Feedback[] = [];
+export const chatMessages: ChatMessage[] = [];
 
 // Helper functions
 export function findUserByEmail(email: string): User | undefined {
@@ -162,3 +194,77 @@ export function initializeMockData() {
 
 // Initialize mock data on module load
 initializeMockData();
+
+// Analytics helper functions
+export function trackEvent(event: Omit<AnalyticsEvent, 'id' | 'timestamp'>) {
+  analyticsEvents.push({
+    id: `event_${Date.now()}_${Math.random()}`,
+    timestamp: new Date().toISOString(),
+    ...event,
+  });
+}
+
+export function getAnalyticsSummary() {
+  const now = new Date();
+  const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const last7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+  return {
+    totalUsers: users.length,
+    totalParents: parents.length,
+    totalBabysitters: babysitters.length,
+    totalBookings: bookings.length,
+    totalReviews: reviews.length,
+    totalPageViews: analyticsEvents.filter(e => e.type === 'page_view').length,
+    pageViewsLast24h: analyticsEvents.filter(
+      e => e.type === 'page_view' && new Date(e.timestamp) > last24Hours
+    ).length,
+    pageViewsLast7d: analyticsEvents.filter(
+      e => e.type === 'page_view' && new Date(e.timestamp) > last7Days
+    ).length,
+    registrationsLast24h: analyticsEvents.filter(
+      e => e.type === 'registration' && new Date(e.timestamp) > last24Hours
+    ).length,
+    registrationsLast7d: analyticsEvents.filter(
+      e => e.type === 'registration' && new Date(e.timestamp) > last7Days
+    ).length,
+    bookingsLast24h: analyticsEvents.filter(
+      e => e.type === 'booking' && new Date(e.timestamp) > last24Hours
+    ).length,
+    bookingsLast7d: analyticsEvents.filter(
+      e => e.type === 'booking' && new Date(e.timestamp) > last7Days
+    ).length,
+  };
+}
+
+// Feedback helper functions
+export function addFeedback(feedback: Omit<Feedback, 'id' | 'timestamp'>) {
+  feedbacks.push({
+    id: `feedback_${Date.now()}`,
+    timestamp: new Date().toISOString(),
+    ...feedback,
+  });
+}
+
+// Chat helper functions
+export function addChatMessage(message: Omit<ChatMessage, 'id' | 'timestamp'>) {
+  chatMessages.push({
+    id: `msg_${Date.now()}`,
+    timestamp: new Date().toISOString(),
+    ...message,
+  });
+}
+
+export function getChatHistory(userId?: string) {
+  if (userId) {
+    return chatMessages.filter(m => m.userId === userId);
+  }
+  return chatMessages;
+}
+
+export function markMessagesAsRead(messageIds: string[]) {
+  messageIds.forEach(id => {
+    const msg = chatMessages.find(m => m.id === id);
+    if (msg) msg.read = true;
+  });
+}

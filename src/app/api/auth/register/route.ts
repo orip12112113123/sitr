@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { hashPassword, generateToken } from '@/lib/auth';
-import { users, parents, babysitters, findUserByEmail } from '@/data/storage';
+import { users, parents, babysitters, findUserByEmail, trackEvent } from '@/data/storage';
 import { ParentProfile, BabysitterProfile } from '@/lib/types';
 import { validateUserInput, sanitizeString, checkRateLimit } from '@/lib/validation';
 
@@ -91,6 +91,13 @@ export async function POST(request: NextRequest) {
 
     // Generate secure JWT token
     const token = generateToken(userId, type);
+
+    // Track registration event for analytics
+    trackEvent({
+      type: 'registration',
+      userId,
+      metadata: { userType: type },
+    });
 
     // Don't expose sensitive data in response
     return NextResponse.json({
