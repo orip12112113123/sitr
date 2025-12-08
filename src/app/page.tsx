@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Baby, Heart, Shield, Star } from 'lucide-react';
+import { Baby, Heart, Shield, Star, Search } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -38,20 +38,41 @@ export default function Home() {
           <p className="text-xl text-gray-600 mb-8">
             Connect with trusted, verified babysitters in your area. Safe, reliable, and easy to use.
           </p>
-          <div className="flex gap-4 justify-center">
+
+          {/* Browse without account */}
+          <div className="mb-6">
+            <Link
+              href="/browse"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-white border-2 border-peach-500 text-peach-600 rounded-lg hover:bg-peach-50 transition-colors font-semibold text-lg shadow-md"
+            >
+              <Search className="w-5 h-5" />
+              Browse Babysitters (No Account Needed)
+            </Link>
+          </div>
+
+          {/* Sign up options */}
+          <div className="flex flex-wrap gap-4 justify-center">
             <Link
               href="/register?type=parent"
-              className="px-8 py-4 bg-peach-500 text-white rounded-lg hover:bg-peach-600 transition-colors font-semibold text-lg"
+              className="px-8 py-4 bg-peach-500 text-white rounded-lg hover:bg-peach-600 transition-colors font-semibold text-lg shadow-md"
             >
-              I Need a Babysitter
+              Sign Up as Parent
             </Link>
             <Link
               href="/register?type=babysitter"
-              className="px-8 py-4 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors font-semibold text-lg"
+              className="px-8 py-4 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors font-semibold text-lg shadow-md"
             >
-              I'm a Babysitter
+              Sign Up as Babysitter
             </Link>
           </div>
+
+          {/* Login prompt */}
+          <p className="mt-6 text-gray-600">
+            Already have an account?{' '}
+            <Link href="/login" className="text-peach-600 hover:text-peach-700 font-semibold underline">
+              Login here
+            </Link>
+          </p>
         </div>
 
         {/* Features */}

@@ -1,18 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Baby, LogOut, MapPin, Car, DollarSign, Star, Search, Filter, Navigation } from 'lucide-react';
+import Link from 'next/link';
+import { Baby, MapPin, Car, DollarSign, Star, ArrowLeft, Navigation } from 'lucide-react';
 import { BabysitterProfile } from '@/lib/types';
 
-export default function ParentDashboard() {
-  const router = useRouter();
-  const [user, setUser] = useState<any>(null);
+export default function BrowseBabysitters() {
   const [babysitters, setBabysitters] = useState<BabysitterProfile[]>([]);
   const [filteredBabysitters, setFilteredBabysitters] = useState<BabysitterProfile[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedBabysitter, setSelectedBabysitter] = useState<BabysitterProfile | null>(null);
-  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [userLocation, setUserLocation] = useState('Los Angeles, CA');
 
   const [filters, setFilters] = useState({
     location: '',
@@ -22,23 +19,7 @@ export default function ParentDashboard() {
     maxDistance: '',
   });
 
-  const [bookingForm, setBookingForm] = useState({
-    date: '',
-    hours: '',
-  });
-
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (!storedUser) {
-      router.push('/login');
-      return;
-    }
-    const userData = JSON.parse(storedUser);
-    if (userData.type !== 'parent') {
-      router.push('/babysitter/dashboard');
-      return;
-    }
-    setUser(userData);
     fetchBabysitters();
   }, []);
 
@@ -92,43 +73,6 @@ export default function ParentDashboard() {
     setFilteredBabysitters(filtered);
   };
 
-  const handleBooking = async () => {
-    if (!selectedBabysitter || !bookingForm.date || !bookingForm.hours) {
-      alert('Please fill in all booking details');
-      return;
-    }
-
-    try {
-      const response = await fetch('/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          parentId: user.id,
-          babysitterId: selectedBabysitter.id,
-          date: bookingForm.date,
-          hours: parseFloat(bookingForm.hours),
-        }),
-      });
-
-      if (response.ok) {
-        alert('Booking request sent successfully!');
-        setShowBookingModal(false);
-        setBookingForm({ date: '', hours: '' });
-      } else {
-        alert('Booking failed. Please try again.');
-      }
-    } catch (error) {
-      console.error('Booking error:', error);
-      alert('An error occurred. Please try again.');
-    }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    router.push('/');
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-peach-50 via-pink-50 to-peach-100 flex items-center justify-center">
@@ -142,32 +86,58 @@ export default function ParentDashboard() {
       {/* Header */}
       <header className="bg-white shadow-sm">
         <nav className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <Baby className="w-8 h-8 text-peach-500" />
             <h1 className="text-2xl font-bold text-peach-600">sitr</h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-gray-700">Welcome, {user?.name}</span>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800"
+          </Link>
+          <div className="flex gap-4">
+            <Link
+              href="/login"
+              className="px-4 py-2 text-peach-600 hover:text-peach-700 font-medium"
             >
-              <LogOut className="w-5 h-5" />
-              Logout
-            </button>
+              Login
+            </Link>
+            <Link
+              href="/register"
+              className="px-6 py-2 bg-peach-500 text-white rounded-lg hover:bg-peach-600 transition-colors font-medium"
+            >
+              Sign Up
+            </Link>
           </div>
         </nav>
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <h2 className="text-3xl font-bold text-gray-800 mb-6">Find a Babysitter</h2>
+        <div className="flex items-center gap-2 mb-4">
+          <Link href="/" className="text-peach-600 hover:text-peach-700 flex items-center gap-1">
+            <ArrowLeft className="w-4 h-4" />
+            Back to Home
+          </Link>
+        </div>
+
+        <div className="mb-6">
+          <h2 className="text-3xl font-bold text-gray-800 mb-2">Browse Babysitters</h2>
+          <p className="text-gray-600 flex items-center gap-2">
+            <Navigation className="w-4 h-4" />
+            Showing babysitters near <span className="font-semibold">{userLocation}</span>
+          </p>
+        </div>
+
+        {/* Notice for guests */}
+        <div className="bg-peach-50 border border-peach-200 rounded-lg p-4 mb-6">
+          <p className="text-gray-700">
+            <span className="font-semibold">Sign up to book!</span> You can browse babysitters here,
+            but you'll need to{' '}
+            <Link href="/register?type=parent" className="text-peach-600 hover:text-peach-700 font-semibold underline">
+              create an account
+            </Link>{' '}
+            to make a booking.
+          </p>
+        </div>
 
         {/* Filters */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Filter className="w-5 h-5 text-peach-500" />
-            <h3 className="text-lg font-semibold">Filters</h3>
-          </div>
+          <h3 className="text-lg font-semibold mb-4">Filter Babysitters</h3>
           <div className="grid md:grid-cols-5 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
@@ -291,15 +261,12 @@ export default function ParentDashboard() {
                 {babysitter.totalReviews} {babysitter.totalReviews === 1 ? 'review' : 'reviews'}
               </div>
 
-              <button
-                onClick={() => {
-                  setSelectedBabysitter(babysitter);
-                  setShowBookingModal(true);
-                }}
-                className="w-full py-2 bg-peach-500 text-white rounded-lg hover:bg-peach-600 transition-colors font-medium"
+              <Link
+                href="/register?type=parent"
+                className="block w-full py-2 bg-peach-500 text-white rounded-lg hover:bg-peach-600 transition-colors font-medium text-center"
               >
-                Book Now
-              </button>
+                Sign Up to Book
+              </Link>
             </div>
           ))}
         </div>
@@ -319,62 +286,6 @@ export default function ParentDashboard() {
           </div>
         )}
       </main>
-
-      {/* Booking Modal */}
-      {showBookingModal && selectedBabysitter && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <h3 className="text-2xl font-bold mb-4">Book {selectedBabysitter.name}</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                <input
-                  type="date"
-                  value={bookingForm.date}
-                  onChange={(e) => setBookingForm({ ...bookingForm, date: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-peach-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Hours</label>
-                <input
-                  type="number"
-                  min="1"
-                  step="0.5"
-                  value={bookingForm.hours}
-                  onChange={(e) => setBookingForm({ ...bookingForm, hours: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-peach-500 focus:border-transparent"
-                />
-              </div>
-              {bookingForm.hours && (
-                <div className="bg-peach-50 p-4 rounded-lg">
-                  <p className="text-sm text-gray-600">Total Cost</p>
-                  <p className="text-2xl font-bold text-peach-600">
-                    ${(selectedBabysitter.hourlyRate * parseFloat(bookingForm.hours)).toFixed(2)}
-                  </p>
-                </div>
-              )}
-              <div className="flex gap-3">
-                <button
-                  onClick={handleBooking}
-                  className="flex-1 py-2 bg-peach-500 text-white rounded-lg hover:bg-peach-600 transition-colors font-medium"
-                >
-                  Confirm Booking
-                </button>
-                <button
-                  onClick={() => {
-                    setShowBookingModal(false);
-                    setBookingForm({ date: '', hours: '' });
-                  }}
-                  className="flex-1 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
