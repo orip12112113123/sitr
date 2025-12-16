@@ -1,0 +1,38 @@
+🚀 העלאה מהירה לגיטהאב
+
+הדרך הכי פשוטה:
+===================
+
+1. לך ל: https://github.com/orip12112113123/Takless
+
+2. לחץ על "uploading an existing file"
+
+3. גרור את כל הקבצים מהתיקייה:
+   /home/user/takless/
+
+4. Commit message: "Add Takless pitch materials"
+
+5. לחץ "Commit changes"
+
+זהו! ✅
+
+---
+
+או דרך Terminal:
+=================
+
+cd /home/user/takless
+git remote add origin https://github.com/orip12112113123/Takless.git
+git push -u origin main
+
+(אם מבקש סיסמה - צריך Personal Access Token מ-GitHub Settings)
+
+---
+
+הקבצים החשובים:
+=================
+✅ pitch-deck.html - המצגת!
+✅ README.md - תיעוד
+✅ one-pager.md - עמוד אחד למשקיעים
+
+קרא את UPLOAD_TO_GITHUB.md למדריך מלא!
